@@ -26,6 +26,12 @@
 };
 
 //Remove the Type-C Begin
+/ {
+    pmic-glink {
+        status = "disabled";
+    };
+};
+
 &i2c1 {
 	typec-mux@42 {
 		status = "disabled";
