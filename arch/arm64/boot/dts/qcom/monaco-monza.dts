@@ -184,6 +184,19 @@
 			};
 		};
 	};
+	gpio-keys {
+		compatible = "gpio-keys";
+		pinctrl-names = "default";
+		pinctrl-0 = <&gpio_sleep_button_default>;
+
+		sleep-button {
+			label = "Sleep Button";
+			gpios = <&tlmm 69 GPIO_ACTIVE_HIGH>;
+			linux,code = <KEY_SLEEP>;
+			wakeup-source;
+		};
+	};
+
 };
 
 &apps_rsc {
@@ -764,6 +777,13 @@
 			};
 		};
 	};
+	gpio_sleep_button_default: gpio_sleep_button_default {
+		pins = "gpio69";
+		function = "gpio";
+		input-enable;
+		bias-pull-down;
+	};
+
 };
 
 &tlmm {
