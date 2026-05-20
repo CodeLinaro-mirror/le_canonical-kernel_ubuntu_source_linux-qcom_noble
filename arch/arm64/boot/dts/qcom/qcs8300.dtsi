@@ -398,6 +398,16 @@
 		compatible = "operating-points-v2";
 		opp-shared;
 
+		cpu0_opp_902mhz: opp-902400000 {
+			opp-hz = /bits/ 64 <902400000>;
+			opp-peak-kBps = <6220800 29491200>;
+		};
+
+		cpu0_opp_1017mhz: opp-1017600000 {
+			opp-hz = /bits/ 64 <1017600000>;
+			opp-peak-kBps = <6220800 29491200>;
+		};
+
 		cpu0_opp_1190mhz: opp-1190400000 {
 			opp-hz = /bits/ 64 <1190400000>;
 			opp-peak-kBps = <6220800 29491200>;
@@ -467,6 +477,16 @@
 	cpu2_opp_table: opp-table-cpu2 {
 		compatible = "operating-points-v2";
 		opp-shared;
+
+		cpu2_opp_940mhz: opp-940800000 {
+			opp-hz = /bits/ 64 <940800000>;
+			opp-peak-kBps = <6220800 29491200>;
+		};
+
+		cpu2_opp_1094mhz: opp-1094400000 {
+			opp-hz = /bits/ 64 <1094400000>;
+			opp-peak-kBps = <6220800 29491200>;
+		};
 
 		cpu2_opp_1267mhz: opp-1267200000 {
 			opp-hz = /bits/ 64 <1267200000>;
@@ -547,6 +567,11 @@
 	cpu4_opp_table: opp-table-cpu4 {
 		compatible = "operating-points-v2";
 		opp-shared;
+
+		cpu4_opp_844mhz: opp-844800000 {
+			opp-hz = /bits/ 64 <844800000>;
+			opp-peak-kBps = <3072000 29491200>;
+		};
 
 		cpu4_opp_1113mhz: opp-1113600000 {
 			opp-hz = /bits/ 64 <1113600000>;
