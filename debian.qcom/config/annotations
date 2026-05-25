@@ -936,6 +936,7 @@ CONFIG_MFD_STM32_TIMERS                         policy<{'arm64': '-'}>
 CONFIG_MFD_SUN4I_GPADC                          policy<{'arm64': '-'}>
 CONFIG_MFD_SUN6I_PRCM                           policy<{'arm64': '-'}>
 CONFIG_MFD_TI_AM335X_TSCADC                     policy<{'arm64': '-'}>
+CONFIG_MFD_TN48M_CPLD                           policy<{'arm64': '-'}>
 CONFIG_MHI_EP_NET                               policy<{'arm64': 'n'}>
 CONFIG_MMC_BLOCK_MINORS                         policy<{'arm64': '32'}>
 CONFIG_MMC_CAVIUM_THUNDERX                      policy<{'arm64': '-'}>
