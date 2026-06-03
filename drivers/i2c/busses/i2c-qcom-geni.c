@@ -90,8 +90,6 @@ enum geni_i2c_err_code {
 #define XFER_TIMEOUT		HZ
 #define RST_TIMEOUT		HZ
 
-static int geni_i2c_runtime_resume(struct device *dev);
-
 struct geni_i2c_dev {
 	struct geni_se se;
 	u32 tx_wm;
@@ -760,26 +758,17 @@ static int geni_i2c_xfer(struct i2c_adapter *adap,
 			 int num)
 {
 	struct geni_i2c_dev *gi2c = i2c_get_adapdata(adap);
-	struct device *dev = gi2c->se.dev;
 	int ret;
 
 	gi2c->err = 0;
 	reinit_completion(&gi2c->done);
 	ret = pm_runtime_get_sync(gi2c->se.dev);
-	if (ret < 0 && gi2c->suspended) {
-		I2C_DBG_LOG(LOG_LVL_VERBOSE, gi2c->se.dev,
-			    "%s: pm_runtime_get_sync failed ! doing force resume\n",
-			    __func__);
-		ret = geni_i2c_runtime_resume(gi2c->se.dev);
-		if (ret) {
-			I2C_ERR_LOG(LOG_LVL_ERROR, gi2c->se.dev,
-				    "error turning SE resources:%d\n", ret);
-			pm_runtime_put_noidle(gi2c->se.dev);
-			/* Set device in suspended since resume failed */
-			pm_runtime_set_suspended(gi2c->se.dev);
-			return ret;
-		}
-		atomic_inc(&dev->power.usage_count);
+	if (ret < 0) {
+		dev_err(gi2c->se.dev, "error turning SE resources:%d\n", ret);
+		pm_runtime_put_noidle(gi2c->se.dev);
+		/* Set device in suspended since resume failed */
+		pm_runtime_set_suspended(gi2c->se.dev);
+		return ret;
 	}
 
 	qcom_geni_i2c_conf(gi2c);
@@ -904,7 +893,7 @@ static int geni_i2c_probe(struct platform_device *pdev)
 	init_completion(&gi2c->done);
 	spin_lock_init(&gi2c->lock);
 	platform_set_drvdata(pdev, gi2c);
-	ret = devm_request_irq(dev, gi2c->irq, geni_i2c_irq, IRQF_NO_AUTOEN | IRQF_EARLY_RESUME | IRQF_NO_SUSPEND,
+	ret = devm_request_irq(dev, gi2c->irq, geni_i2c_irq, IRQF_NO_AUTOEN,
 			       dev_name(dev), gi2c);
 	if (ret)
 		return dev_err_probe(dev, ret, "Request_irq failed: %d\n", gi2c->irq);
