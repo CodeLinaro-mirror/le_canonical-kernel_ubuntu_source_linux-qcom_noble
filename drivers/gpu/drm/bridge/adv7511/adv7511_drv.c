@@ -650,6 +650,13 @@ static int adv7511_get_modes(struct adv7511 *adv7511,
 	drm_connector_update_edid_property(connector, edid);
 	count = drm_add_edid_modes(connector, edid);
 
+	if (edid) {
+		mutex_lock(&adv7511->connector.eld_mutex);
+		memcpy(adv7511->connector.eld, connector->eld,
+		       sizeof(adv7511->connector.eld));
+		mutex_unlock(&adv7511->connector.eld_mutex);
+	}
+
 	kfree(edid);
 
 	return count;
@@ -962,8 +969,18 @@ static struct edid *adv7511_bridge_get_edid(struct drm_bridge *bridge,
 					    struct drm_connector *connector)
 {
 	struct adv7511 *adv = bridge_to_adv7511(bridge);
+	struct edid *edid;
 
-	return adv7511_get_edid(adv, connector);
+	edid = adv7511_get_edid(adv, connector);
+	if (edid) {
+		drm_connector_update_edid_property(connector, edid);
+		mutex_lock(&adv->connector.eld_mutex);
+		memcpy(adv->connector.eld, connector->eld,
+		       sizeof(adv->connector.eld));
+		mutex_unlock(&adv->connector.eld_mutex);
+	}
+
+	return edid;
 }
 
 static void adv7511_bridge_hpd_notify(struct drm_bridge *bridge,
