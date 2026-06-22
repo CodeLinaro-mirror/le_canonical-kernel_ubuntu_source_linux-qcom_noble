@@ -320,6 +320,7 @@ struct qcom_battmgr {
 	struct qcom_battmgr_wireless wireless;
 
 	struct work_struct enable_work;
+	bool batteryless;
 
 	/*
 	 * @lock is used to prevent concurrent power supply requests to the
@@ -776,6 +777,47 @@ static const struct power_supply_desc sm8350_bat_psy_desc = {
 	.get_property = qcom_battmgr_bat_get_property,
 	.set_property = qcom_battmgr_bat_set_property,
 	.property_is_writeable = qcom_battmgr_prop_is_writeable,
+};
+
+static int qcom_battmgr_dcin_get_property(struct power_supply *psy,
+					  enum power_supply_property psp,
+					  union power_supply_propval *val)
+{
+	struct qcom_battmgr *battmgr = power_supply_get_drvdata(psy);
+	int ret;
+
+	if (!battmgr->service_up)
+		return -EAGAIN;
+
+	ret = qcom_battmgr_bat_sm8350_update(battmgr, psp);
+	if (ret < 0)
+		return ret;
+
+	switch (psp) {
+	case POWER_SUPPLY_PROP_STATUS:
+		val->intval = battmgr->status.status;
+		break;
+	case POWER_SUPPLY_PROP_PRESENT:
+		val->intval = battmgr->info.present;
+		break;
+	default:
+		return -EINVAL;
+	}
+
+	return 0;
+}
+
+static const enum power_supply_property dcin_props[] = {
+	POWER_SUPPLY_PROP_STATUS,
+	POWER_SUPPLY_PROP_PRESENT,
+};
+
+static const struct power_supply_desc dcin_psy_desc = {
+	.name = "qcom-battmgr-dcin",
+	.type = POWER_SUPPLY_TYPE_MAINS,
+	.properties = dcin_props,
+	.num_properties = ARRAY_SIZE(dcin_props),
+	.get_property = qcom_battmgr_dcin_get_property,
 };
 
 static int qcom_battmgr_ac_get_property(struct power_supply *psy,
@@ -1697,6 +1739,7 @@ static int qcom_battmgr_probe(struct auxiliary_device *adev,
 	mutex_init(&battmgr->lock);
 	init_completion(&battmgr->ack);
 
+	battmgr->batteryless = device_property_read_bool(dev, "qcom,batteryless");
 	match = of_match_device(qcom_battmgr_of_variants, dev->parent);
 	if (match)
 		battmgr->variant = (unsigned long)match->data;
@@ -1730,7 +1773,12 @@ static int qcom_battmgr_probe(struct auxiliary_device *adev,
 			return ret;
 		}
 
-		battmgr->bat_psy = devm_power_supply_register(dev, &sm8350_bat_psy_desc, &psy_cfg);
+		dev_info(dev, "XXX batteryless %d XXX", battmgr->batteryless);
+		if (battmgr->batteryless)
+			battmgr->bat_psy = devm_power_supply_register(dev, &dcin_psy_desc, &psy_cfg);
+		else
+			battmgr->bat_psy = devm_power_supply_register(dev, &sm8350_bat_psy_desc, &psy_cfg);
+
 		if (IS_ERR(battmgr->bat_psy))
 			return dev_err_probe(dev, PTR_ERR(battmgr->bat_psy),
 					     "failed to register battery power supply\n");
