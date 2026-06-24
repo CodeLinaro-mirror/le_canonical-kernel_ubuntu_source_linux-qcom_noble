@@ -51,12 +51,43 @@ static const struct snd_soc_dapm_route qcs9100_dapm_routes[] = {
 	{"DMic", NULL, "MI2S_PINCTRL"},
 };
 
+static const struct snd_soc_dapm_widget monaco_gertrude_dapm_widgets[] = {
+        SND_SOC_DAPM_HP("Headphone", NULL),
+        SND_SOC_DAPM_MIC("Headset Mic12", NULL),
+        SND_SOC_DAPM_MIC("Headset Mic56", NULL),
+        SND_SOC_DAPM_SPK("Receiver", NULL),
+        SND_SOC_DAPM_SPK("Speaker", NULL),
+};
+
+static const struct snd_soc_dapm_route monaco_gertrude_dapm_routes[] = {
+        {"IN12", NULL, "Headset Mic12"},
+        {"Headset Mic12", NULL, "MICBIAS"},
+        {"IN56", NULL, "Headset Mic56"},
+        {"Headset Mic56", NULL, "MICBIAS"},
+        {"Headphone", NULL, "HPL"},
+        {"Headphone", NULL, "HPR"},
+        {"Receiver", NULL, "RCVL"},
+        {"Receiver", NULL, "RCVR"},
+        {"Speaker", NULL, "SPKL"},
+        {"Speaker", NULL, "SPKR"},
+};
+
+static const struct snd_kcontrol_new monaco_gertrude_max98090_controls[] = {
+        SOC_DAPM_PIN_SWITCH("Headset Mic12"),
+        SOC_DAPM_PIN_SWITCH("Headset Mic56"),
+        SOC_DAPM_PIN_SWITCH("Headphone"),
+        SOC_DAPM_PIN_SWITCH("Receiver"),
+        SOC_DAPM_PIN_SWITCH("Speaker"),
+};
+
 struct snd_soc_common {
 	char *driver_name;
 	const struct snd_soc_dapm_widget *dapm_widgets;
 	int num_dapm_widgets;
 	const struct snd_soc_dapm_route *dapm_routes;
 	int num_dapm_routes;
+	const struct snd_kcontrol_new *controls;
+	int num_controls;
 	int codec_dai_fmt[APM_PORT_MAX];
 	bool jack_enable;
 	bool mi2s_mclk_enable;
@@ -96,6 +127,20 @@ static struct snd_soc_common qcs8275_priv_data = {
 	.num_dapm_widgets = ARRAY_SIZE(qcs9100_dapm_widgets),
 	.dapm_routes = qcs9100_dapm_routes,
 	.num_dapm_routes = ARRAY_SIZE(qcs9100_dapm_routes),
+};
+
+static struct snd_soc_common monaco_gertrude_priv_data = {
+	.driver_name = "qcs8300",
+	.dapm_widgets = monaco_gertrude_dapm_widgets,
+	.num_dapm_widgets = ARRAY_SIZE(monaco_gertrude_dapm_widgets),
+	.dapm_routes = monaco_gertrude_dapm_routes,
+	.num_dapm_routes = ARRAY_SIZE(monaco_gertrude_dapm_routes),
+	.controls = monaco_gertrude_max98090_controls,
+	.num_controls = ARRAY_SIZE(monaco_gertrude_max98090_controls),
+	.codec_dai_fmt = {[PRIMARY_MI2S_TX] = SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_BC_FC,
+			  [PRIMARY_MI2S_RX] = SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_BC_FC,
+			  [LPI_MI2S_RX_4] = SND_SOC_DAIFMT_NB_NF | SND_SOC_DAIFMT_I2S | SND_SOC_DAIFMT_BC_FC,},
+	.mi2s_mclk_enable = true,
 };
 
 static struct snd_soc_common sc8280xp_priv_data = {
@@ -243,6 +288,7 @@ static int sc8280xp_snd_hw_params(struct snd_pcm_substream *substream,
 	case PRIMARY_MI2S_RX...QUATERNARY_MI2S_TX:
 	case QUINARY_MI2S_RX...QUINARY_MI2S_TX:
 	case SENARY_MI2S_RX...SENARY_MI2S_TX:
+	case LPI_MI2S_RX_0 ... LPI_MI2S_TX_4:
 		snd_soc_dai_set_fmt(cpu_dai, SND_SOC_DAIFMT_BP_FP);
 
 		if (pdata->snd_soc_common_priv->codec_dai_fmt[cpu_dai->id])
@@ -250,9 +296,7 @@ static int sc8280xp_snd_hw_params(struct snd_pcm_substream *substream,
 					    pdata->snd_soc_common_priv->codec_dai_fmt[cpu_dai->id]);
 
 		if (pdata->snd_soc_common_priv->mi2s_mclk_enable)
-			snd_soc_dai_set_sysclk(cpu_dai,
-					       LPAIF_MI2S_MCLK, mclk_freq,
-					       SND_SOC_CLOCK_IN);
+			snd_soc_dai_set_sysclk(codec_dai, 0, mclk_freq, SND_SOC_CLOCK_IN);
 		break;
 	default:
 		break;
@@ -330,6 +374,8 @@ static int sc8280xp_platform_probe(struct platform_device *pdev)
 	card->num_dapm_widgets = data->snd_soc_common_priv->num_dapm_widgets;
 	card->dapm_routes = data->snd_soc_common_priv->dapm_routes;
 	card->num_dapm_routes = data->snd_soc_common_priv->num_dapm_routes;
+	card->controls = data->snd_soc_common_priv->controls;
+	card->num_controls = data->snd_soc_common_priv->num_controls;
 
 	ret = qcom_snd_parse_of(card);
 	if (ret)
@@ -348,6 +394,7 @@ static const struct of_device_id snd_sc8280xp_dt_match[] = {
 	{.compatible = "qcom,qcs9075-sndcard", .data = &qcs9100_priv_data},
 	{.compatible = "qcom,qcs9100-sndcard", .data = &qcs9100_priv_data},
 	{.compatible = "qcom,lemans-amr-sndcard", .data = &lemans_amr_priv_data},
+	{.compatible = "qcom,monaco-gertrude-sndcard", .data = &monaco_gertrude_priv_data},
 	{.compatible = "qcom,sc8280xp-sndcard", .data = &sc8280xp_priv_data},
 	{.compatible = "qcom,sm8450-sndcard", .data = &sm8450_priv_data},
 	{.compatible = "qcom,sm8550-sndcard", .data = &sm8550_priv_data},

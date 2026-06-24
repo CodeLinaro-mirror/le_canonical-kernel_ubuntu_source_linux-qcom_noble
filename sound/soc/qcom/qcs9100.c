@@ -380,7 +380,6 @@ static const struct of_device_id snd_qcs9100_dt_match[] = {
 	{.compatible = "qcom,qcs8300-ridesx-sndcard", .data = &snd_soc_qcs8300_data},
 	{.compatible = "qcom,qcs9100-ridesx-sndcard", .data = &snd_soc_qcs9100_data},
 	{.compatible = "qcom,qcs9075-rb8-sndcard", .data = &snd_soc_qcs9075_rb8_data},
-	{.compatible = "qcom,monaco-gertrude-sndcard", .data = &snd_soc_monaco_gertrude_data},
 	{.compatible = "qcom,qcs9075-amr-sndcard", .data = &snd_soc_qcs9075_amr_data},
 	{}
 };
