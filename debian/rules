@@ -153,6 +153,11 @@ clean: debian/control debian/canonical-certs.pem debian/canonical-revoked-certs.
 	rm -f $(DROOT)/control.stub $(DEBIAN)/control.stub
 	rm -f $(DROOT)/scripts/fix-filenames
 
+	# make a copy of the original driver to msm_default and apply custom patch
+	rm -rf drivers/gpu/drm/msm_default
+	cp -r drivers/gpu/drm/msm drivers/gpu/drm/msm_default
+	patch -p1 < $(DEBIAN)/patch/msm_default.diff
+
 .PHONY: distclean
 distclean: clean
 	rm -rf $(DROOT)/control debian/changelog \
