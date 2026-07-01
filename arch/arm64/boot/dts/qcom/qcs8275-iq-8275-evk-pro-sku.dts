@@ -134,6 +134,7 @@
 			regulator-allowed-modes = <RPMH_REGULATOR_MODE_LPM
 						   RPMH_REGULATOR_MODE_HPM>;
 			regulator-off-on-delay-us = <10000>;
+			regulator-enable-ramp-delay = <10000>;
 		};
 
 		vreg_l9a: ldo9 {
