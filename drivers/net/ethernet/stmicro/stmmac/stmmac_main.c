@@ -4615,7 +4615,7 @@ static void stmmac_hw_ts_insert(struct stmmac_priv *priv, struct stmmac_tx_queue
 	stmmac_set_desc_hw_ts(priv, p, tx_q->pid);
 	stmmac_set_tx_owner(priv, p);
 
-	tx_q->cur_tx = STMMAC_GET_ENTRY(tx_q->cur_tx, priv->dma_conf.dma_tx_size);
+	tx_q->cur_tx = STMMAC_NEXT_ENTRY(tx_q->cur_tx, priv->dma_conf.dma_tx_size);
 }
 
 /**
