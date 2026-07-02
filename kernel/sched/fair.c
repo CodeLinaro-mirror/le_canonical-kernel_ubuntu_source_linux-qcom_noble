@@ -1199,7 +1199,7 @@ static void __update_curr(struct cfs_rq *cfs_rq, bool tick)
 
 	curr->vruntime += calc_delta_fair(delta_exec, curr);
 	update_deadline(cfs_rq, curr, tick);
-	update_zero_vruntime(cfs_rq);
+	avg_vruntime(cfs_rq);
 
 	if (entity_is_task(curr))
 		update_curr_task(task_of(curr), delta_exec);
@@ -8637,7 +8637,7 @@ static void yield_task_fair(struct rq *rq)
 	 */
 	if (entity_eligible(cfs_rq, se)) {
 		se->vruntime = se->deadline;
-		update_deadline(cfs_rq, se);
+		update_deadline(cfs_rq, se, false);
 	}
 }
 
