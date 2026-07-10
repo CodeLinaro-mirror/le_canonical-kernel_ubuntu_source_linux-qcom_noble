@@ -96,7 +96,7 @@ struct xpcs_id {
 	const struct xpcs_compat *compat;
 };
 
-const struct xpcs_compat *xpcs_find_compat(const struct xpcs_id *id,
+static const struct xpcs_compat *xpcs_find_compat(const struct xpcs_id *id,
 					   phy_interface_t interface)
 {
 	int i, j;
@@ -112,7 +112,7 @@ const struct xpcs_compat *xpcs_find_compat(const struct xpcs_id *id,
 	return NULL;
 }
 
-int qcom_xpcs_get_an_mode(struct dw_xpcs_qcom *qxpcs, phy_interface_t interface)
+static int qcom_xpcs_get_an_mode(struct dw_xpcs_qcom *qxpcs, phy_interface_t interface)
 {
 	const struct xpcs_compat *compat;
 
@@ -214,7 +214,6 @@ static int qcom_xpcs_validate(struct phylink_pcs *pcs, unsigned long *supported,
 			set_bit(compat->supported[i], xpcs_supported);
 
 	linkmode_and(supported, supported, xpcs_supported);
-	linkmode_and(state->advertising, state->advertising, xpcs_supported);
 
 	return 0;
 }
@@ -367,7 +366,7 @@ out:
 	XPCSERR("Failed to handle Autonegotiation interrupt\n");
 }
 
-int qcom_xpcs_check_aneg_ioc(struct dw_xpcs_qcom *qxpcs, phy_interface_t interface)
+static int qcom_xpcs_check_aneg_ioc(struct dw_xpcs_qcom *qxpcs, phy_interface_t interface)
 {
 	int ret;
 
@@ -569,7 +568,7 @@ static void qcom_xpcs_get_state(struct phylink_pcs *pcs,
 	}
 }
 
-irqreturn_t qcom_xpcs_fusa_isr(int irq, void *dev_data)
+static irqreturn_t qcom_xpcs_fusa_isr(int irq, void *dev_data)
 {
 	struct dw_xpcs_qcom *qxpcs = (struct dw_xpcs_qcom *)dev_data;
 	int ret, linksts, remotelinksts;
@@ -677,7 +676,7 @@ void qcom_xpcs_get_err_stats(struct phylink_pcs *pcs, unsigned long *ptr)
 }
 EXPORT_SYMBOL_GPL(qcom_xpcs_get_err_stats);
 
-void qcom_xpcs_link_up_usxgmii(struct dw_xpcs_qcom *qxpcs, int speed)
+static void qcom_xpcs_link_up_usxgmii(struct dw_xpcs_qcom *qxpcs, int speed)
 {
 	int mmd_ctrl;
 	int ret;
@@ -1006,7 +1005,7 @@ struct phylink_pcs *qcom_xpcs_create(struct device_node *np, phy_interface_t int
 out:
 	XPCSERR("qxpcs creation failed\n");
 	kfree(qxpcs);
-	return ret;
+	return ERR_PTR(ret);
 }
 EXPORT_SYMBOL_GPL(qcom_xpcs_create);
 
@@ -1070,7 +1069,7 @@ done:
 }
 EXPORT_SYMBOL_GPL(qcom_xpcs_destroy);
 
-irqreturn_t qcom_xpcs_isr(int irq, void *dev_data)
+static irqreturn_t qcom_xpcs_isr(int irq, void *dev_data)
 {
 	int ret;
 	struct dw_xpcs_qcom *qxpcs = (struct dw_xpcs_qcom *)dev_data;
@@ -1082,7 +1081,7 @@ irqreturn_t qcom_xpcs_isr(int irq, void *dev_data)
 	return IRQ_HANDLED;
 }
 
-int qcom_xpcs_intr_enable(struct dw_xpcs_qcom *qxpcs)
+static int qcom_xpcs_intr_enable(struct dw_xpcs_qcom *qxpcs)
 {
 	int ret = 0;
 
@@ -1112,7 +1111,7 @@ static int qcom_xpcs_probe(struct platform_device *pdev)
 
 	qxpcs = kzalloc(sizeof(*qxpcs), GFP_KERNEL);
 	if (!qxpcs)
-		return ERR_PTR(-ENOMEM);
+		return -ENOMEM;
 
 	qxpcs->addr = devm_platform_ioremap_resource_byname(pdev, "qxpcs");
 	if (IS_ERR_OR_NULL(qxpcs->addr)) {
