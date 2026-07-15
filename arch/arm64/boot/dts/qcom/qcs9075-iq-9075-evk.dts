@@ -486,45 +486,51 @@
 };
 
 &eud {
-	usb-role-switch;
 	status = "okay";
-};
-
-&eud_con {
-	remote-endpoint = <&hd3ss3220_ep>;
 };
 
 &eud_ep {
-	remote-endpoint = <&usb_role_switch>;
+	remote-endpoint = <&usb_0_dwc3_hs>;
+};
+
+&eud_con {
+	remote-endpoint = <&usb0_con_hs_ep>;
 };
 
 &i2c11 {
-	pinctrl-0 = <&qup_i2c11_default>, <&usb0_intr_state>;
-	pinctrl-names = "default";
 	status = "okay";
 
-	hd3ss3220@67 {
+	usb-typec@67 {
 		compatible = "ti,hd3ss3220";
 		reg = <0x67>;
-		interrupt-parent = <&pmm8654au_2_gpios>;
-		interrupts = < 5 IRQ_TYPE_EDGE_FALLING>;
+
+		interrupts-extended = <&pmm8654au_2_gpios 5 IRQ_TYPE_EDGE_FALLING>;
+
+		id-gpios = <&tlmm 50 GPIO_ACTIVE_HIGH>;
+		vbus-supply = <&vbus_supply_regulator_0>;
+
+		pinctrl-0 = <&usb_id>, <&usb0_intr_state>;
+		pinctrl-names = "default";
+
 		wakeup-source;
 
-		connector@0 {
-			compatible = "usb-c-connector";
-			label = "USB-C";
-			data-role = "dual";
-			power-role = "dual";
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
 
-			ports {
-				#address-cells = <1>;
-				#size-cells = <0>;
+			port@0 {
+				reg = <0>;
 
-				port@0 {
-					reg = <0>;
-					hd3ss3220_ep: endpoint {
-						remote-endpoint = <&eud_con>;
-					};
+				hd3ss3220_0_in_ep: endpoint {
+					remote-endpoint = <&usb0_con_ss_ep>;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+
+				hd3ss3220_0_out_ep: endpoint {
+					remote-endpoint = <&usb_0_dwc3_ss>;
 				};
 			};
 		};
@@ -911,6 +917,12 @@
 		bias-pull-up;
 	};
 
+	usb_id: usb-id-state {
+		pins = "gpio50";
+		function = "gpio";
+		bias-pull-up;
+	};
+
 	usb1_id_det_default: usb1-id-det-default {
 		pins = "gpio51";
 		function = "gpio";
@@ -1021,6 +1033,33 @@
 };
 
 &soc {
+	connector-0 {
+		compatible = "usb-c-connector";
+		label = "USB0-Type-C";
+		data-role = "dual";
+		power-role = "dual";
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+
+				usb0_con_hs_ep: endpoint {
+					remote-endpoint = <&usb_0_dwc3_hs>;
+				};
+			};
+			port@1 {
+				reg = <1>;
+
+				usb0_con_ss_ep: endpoint {
+					remote-endpoint = <&hd3ss3220_0_in_ep>;
+				};
+			};
+		};
+	};
+
 	connector_usb1: connector-usb1 {
 		compatible = "gpio-usb-b-connector";
 		id-gpio = <&tlmm 51 GPIO_ACTIVE_HIGH>;
@@ -1148,22 +1187,34 @@
 	maximum-speed = "super-speed-plus";
 	qcom,enable-rt;
 	wakeup-source;
-	vbus_dwc3-supply = <&vbus_supply_regulator_0>;
 	status = "okay";
 
 	ports {
-
 		#address-cells = <1>;
 		#size-cells = <0>;
 
 		port@0 {
 			reg = <0>;
-			usb_role_switch: endpoint {
-				remote-endpoint = <&eud_ep>;
+
+			usb_0_dwc3_hs: endpoint {
 			};
 		};
 
+		port@1 {
+			reg = <1>;
+
+			usb_0_dwc3_ss: endpoint {
+			};
+		};
 	};
+};
+
+&usb_0_dwc3_hs {
+	remote-endpoint = <&eud_ep>;
+};
+
+&usb_0_dwc3_ss {
+	remote-endpoint = <&hd3ss3220_0_out_ep>;
 };
 
 &usb_0_hsphy {
