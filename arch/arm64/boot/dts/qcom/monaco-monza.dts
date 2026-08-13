@@ -71,6 +71,13 @@
 		regulator-always-on;
 	};
 
+       vdc_3v3: regulator-3v3 {
+               compatible = "regulator-fixed";
+               regulator-name = "vdc_3v3";
+               regulator-min-microvolt = <3300000>;
+               regulator-max-microvolt = <3300000>;
+       };
+
 	edp-connector {
 		compatible = "dp-connector";
 		label = "EDP";
