@@ -25,6 +25,8 @@
 		ethernet0 = &ethernet0;
 		serial0 = &uart7;
 		serial1 = &uart10;
+		spi0 = &spi3;
+		i2c0 = &i2c0;
 		i2c12 = &i2c12;
 	};
 
@@ -533,6 +535,11 @@
 	status = "okay";
 };
 
+/* JHAT 40-pin I2C0 */
+&i2c0 {
+	status = "okay";
+};
+
 &i2c12 {
 	status = "okay";
 
@@ -788,6 +795,11 @@
 		bias-pull-down;
 	};
 
+};
+
+/* JHAT 40-pin SPI */
+&spi3 {
+	status = "okay";
 };
 
 &tlmm {
