@@ -12,7 +12,7 @@
 &{/} {
 	model = "Qualcomm Technologies, Inc. Monaco Monza addons";
 	qcom,board-id = <0x00010020 4>, <0x00010019 4>;
-	sound {
+	sound: sound {
 		compatible = "qcom,monaco-gertrude-sndcard";
 		model = "monaco-gertrude";
 		pinctrl-names = "default";
