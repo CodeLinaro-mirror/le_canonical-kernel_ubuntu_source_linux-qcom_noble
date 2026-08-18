@@ -25,7 +25,6 @@
 		ethernet0 = &ethernet0;
 		serial0 = &uart7;
 		serial1 = &uart10;
-		i2c0 = &i2c0;
 		i2c12 = &i2c12;
 	};
 
@@ -367,10 +366,6 @@
 
 &gpu_zap_shader {
 	firmware-name = "qcom/qcs8300/a623_zap.mbn";
-};
-
-&i2c0 {
-	status = "okay";
 };
 
 &i2c12 {
