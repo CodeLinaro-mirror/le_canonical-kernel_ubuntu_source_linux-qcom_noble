@@ -1694,7 +1694,7 @@ static void qca_hw_error(struct hci_dev *hdev, u8 code)
 
 		qca->tx_ibs_state = HCI_IBS_TX_AWAKE;
 		qca->memdump_state = QCA_MEMDUMP_IDLE;
-		msleep(50);
+		msleep(100);
 	}
 }
 
