@@ -27,6 +27,9 @@ CONFIG_DRM_AMDGPU_CIK                           note<'for zesty'>
 CONFIG_EFI_ZBOOT                                policy<{'arm64': 'n'}>
 CONFIG_EFI_ZBOOT                                note<'we use arch/arm64/boot/Image.gz'>
 
+CONFIG_HOTPLUG_PCI_PCIE                         policy<{'arm64': 'n'}>
+CONFIG_HOTPLUG_PCI_PCIE                         note<'LP: #2166869'>
+
 CONFIG_HSA_AMD_P2P                              policy<{'arm64': '-'}>
 CONFIG_HSA_AMD_P2P                              note<'LP: #1987394'>
 
