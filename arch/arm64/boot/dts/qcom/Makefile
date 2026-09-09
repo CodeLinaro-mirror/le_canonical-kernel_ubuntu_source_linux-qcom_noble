@@ -31,6 +31,7 @@ monaco-addons-monza-dtbs:= monaco-monza.dtb monaco-addons-monza.dtbo
 
 dtb-$(CONFIG_ARCH_QCOM)	+= monaco-addons-monza.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= monaco-monza.dtb
+dtb-$(CONFIG_ARCH_QCOM)	+= monaco-monza-precision-hat.dtbo
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-acer-a1-724.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-alcatel-idol347.dtb
 dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-asus-z00l.dtb
